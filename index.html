@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a1410">
+<title>K-Beauty Terrain</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0f0d0b;
+    --surface: #1a1713;
+    --surface2: #221e1a;
+    --border: #2e2923;
+    --accent: #c9a96e;
+    --accent2: #e8c99a;
+    --sage: #7a9e8a;
+    --blush: #d4a5a5;
+    --text: #e8e0d5;
+    --text-muted: #8a8078;
+    --text-dim: #5a534d;
+    --danger: #c97a7a;
+    --success: #7a9e8a;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    max-width: 430px;
+    margin: 0 auto;
+    overflow-x: hidden;
+  }
+
+  /* SCREENS */
+  .screen { display: none; min-height: 100dvh; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* HEADER */
+  .header {
+    padding: 52px 24px 20px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(201,169,110,0.06) 0%, transparent 100%);
+  }
+  .header-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .header-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* NAV */
+  .nav-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--accent);
+    cursor: pointer;
+    margin-bottom: 12px;
+    width: fit-content;
+  }
+  .nav-back svg { width: 16px; height: 16px; }
+
+  /* CONTENT */
+  .content { flex: 1; padding: 24px; overflow-y: auto; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  /* FORM ELEMENTS */
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.05em;
+  }
+  input[type="text"], input[type="date"], textarea, select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  .form-group { margin-bottom: 16px; }
+
+  /* SELECT niveau */
+  .niveau-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .niveau-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 4px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .niveau-btn.active {
+    background: rgba(201,169,110,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* MARQUES CHIPS */
+  .chips-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .chip.active {
+    background: rgba(201,169,110,0.12);
+    border-color: var(--accent);
+    color: var(--accent2);
+  }
+
+  /* BUTTONS */
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #c9a96e, #b8926a);
+    color: #0f0d0b;
+  }
+  .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+  .btn-secondary {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .btn-secondary:active { opacity: 0.7; }
+  .btn-danger {
+    background: rgba(201,122,122,0.12);
+    border: 1px solid rgba(201,122,122,0.3);
+    color: var(--danger);
+  }
+  .btn + .btn { margin-top: 10px; }
+
+  /* COUNTER TILES */
+  .counter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .counter-tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.12s;
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .counter-tile:active {
+    transform: scale(0.95);
+    background: var(--surface2);
+  }
+  .counter-tile.tapped {
+    border-color: var(--accent);
+    background: rgba(201,169,110,0.08);
+  }
+  .counter-icon { font-size: 26px; margin-bottom: 8px; }
+  .counter-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 40px;
+    font-weight: 300;
+    color: var(--accent2);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .counter-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.3;
+  }
+  .counter-minus {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 18px;
+    color: var(--text-dim);
+    padding: 4px;
+    line-height: 1;
+  }
+
+  /* VERBATIM */
+  .verbatim-input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .verbatim-input-row input {
+    flex: 1;
+  }
+  .verbatim-add-btn {
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+    cursor: pointer;
+    color: #0f0d0b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+  }
+  .verbatim-add-btn:active { opacity: 0.7; }
+  .verbatim-list { display: flex; flex-direction: column; gap: 8px; }
+  .verbatim-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .verbatim-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--text);
+    flex: 1;
+    line-height: 1.4;
+  }
+  .verbatim-delete {
+    color: var(--text-dim);
+    font-size: 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 2px;
+  }
+
+  /* PROFIL CLIENTE */
+  .profil-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .profil-tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.12s;
+    user-select: none;
+    -webkit-user-select: none;
+    position: relative;
+  }
+  .profil-tile:active { transform: scale(0.95); }
+  .profil-icon { font-size: 22px; margin-bottom: 6px; }
+  .profil-label { font-size: 11px; color: var(--text-muted); line-height: 1.3; }
+  .profil-count {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    color: var(--accent2);
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .profil-tile.p-debutante { border-color: rgba(212,165,165,0.3); }
+  .profil-tile.p-debutante:active, .profil-tile.p-debutante.tapped { background: rgba(212,165,165,0.1); border-color: var(--blush); }
+  .profil-tile.p-curieuse { border-color: rgba(122,158,138,0.3); }
+  .profil-tile.p-curieuse:active, .profil-tile.p-curieuse.tapped { background: rgba(122,158,138,0.1); border-color: var(--sage); }
+  .profil-tile.p-fan { border-color: rgba(201,169,110,0.3); }
+  .profil-tile.p-fan:active, .profil-tile.p-fan.tapped { background: rgba(201,169,110,0.1); border-color: var(--accent); }
+  .profil-minus {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 16px;
+    color: var(--text-dim);
+    padding: 2px;
+    line-height: 1;
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-dim);
+    background: var(--surface);
+  }
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-dot.online { background: var(--success); box-shadow: 0 0 6px var(--success); }
+  .status-dot.offline { background: var(--danger); }
+  .status-dot.syncing { background: var(--accent); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* HOME SESSION LIST */
+  .session-list { display: flex; flex-direction: column; gap: 10px; }
+  .session-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.15s;
+  }
+  .session-item:active { border-color: var(--accent); }
+  .session-name { font-size: 15px; color: var(--text); }
+  .session-date { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .session-arrow { color: var(--text-dim); font-size: 18px; }
+
+  /* CONFIG SCREEN */
+  .config-header {
+    padding: 52px 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .config-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--accent2);
+  }
+  .config-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+  .api-note {
+    background: rgba(122,158,138,0.1);
+    border: 1px solid rgba(122,158,138,0.25);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--sage);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+  }
+  .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state-text { font-size: 14px; line-height: 1.5; }
+
+  /* QUEUE BADGE */
+  .queue-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(201,122,122,0.15);
+    border: 1px solid rgba(201,122,122,0.3);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: var(--danger);
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: var(--text);
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* DECORATIVE */
+  .deco-line {
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    margin: 12px 0;
+  }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--accent2);
+    margin-bottom: 14px;
+  }
+
+  /* RAPPORT PREVIEW */
+  .rapport-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .rapport-row:last-child { border-bottom: none; }
+  .rapport-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    color: var(--accent2);
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.7);
+  }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SCREEN: CONFIG -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-config">
+  <div class="config-header">
+    <div class="header-label">Configuration</div>
+    <div class="config-title">K-Beauty<br>Terrain</div>
+    <div class="config-sub">Connecte ton compte Airtable pour synchroniser tes données terrain.</div>
+  </div>
+  <div class="content">
+    <div class="api-note">
+      💡 Tes identifiants sont stockés uniquement sur ton téléphone. Tu peux les modifier à tout moment via le bouton ⚙️.
+    </div>
+    <div class="form-group">
+      <label>Clé API Airtable (Personal Access Token)</label>
+      <input type="text" id="cfg-apikey" placeholder="pat..." autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+    <div class="form-group">
+      <label>Base ID</label>
+      <input type="text" id="cfg-baseid" placeholder="appXXXXXXXXXXXXXX" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="form-group">
+      <label>Nom de la table</label>
+      <input type="text" id="cfg-table" placeholder="Sessions" autocomplete="off" spellcheck="false">
+    </div>
+    <button class="btn btn-primary" onclick="saveConfig()">Enregistrer et commencer →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SCREEN: HOME -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-home">
+  <div class="header">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="header-label">K-Beauty Terrain</div>
+        <div class="header-title">Bonjour,<br>Ella ✦</div>
+      </div>
+      <div onclick="showConfig()" style="font-size:22px;cursor:pointer;color:var(--text-dim);padding:4px;">⚙️</div>
+    </div>
+    <div class="header-sub" id="home-date"></div>
+    <div class="deco-line"></div>
+    <div id="home-queue-status"></div>
+  </div>
+  <div class="content">
+    <button class="btn btn-primary" onclick="showNewSession()">+ Nouvelle session du jour</button>
+    <div style="height:24px;"></div>
+    <div class="section-title">Sessions récentes</div>
+    <div class="session-list" id="session-list">
+      <div class="empty-state">
+        <div class="empty-state-icon">🌿</div>
+        <div class="empty-state-text">Aucune session encore.<br>Commence ta première journée terrain.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SCREEN: NOUVEAU MATIN -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-matin">
+  <div class="header">
+    <div class="nav-back" onclick="goHome()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Retour
+    </div>
+    <div class="header-label">Formulaire matin</div>
+    <div class="header-title">Nouvelle session</div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-label">📍 Point de vente</div>
+      <div class="form-group">
+        <label>Enseigne / Nom du magasin</label>
+        <input type="text" id="mat-pdv" placeholder="ex: Parashop Nation, Lafayette…">
+      </div>
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="mat-date">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">🌿 Marques K-Beauty présentes</div>
+      <div class="chips-grid" id="marques-chips"></div>
+      <div style="margin-top:12px;">
+        <label>Autre marque</label>
+        <input type="text" id="mat-marque-custom" placeholder="Ajouter une marque…" onkeydown="if(event.key==='Enter'){addCustomMarque();}">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">👩‍⚕️ Niveau de connaissance des vendeurs</div>
+      <div class="niveau-grid">
+        <div class="niveau-btn" onclick="setNiveau(this,'Nul')">😕<br>Nul</div>
+        <div class="niveau-btn" onclick="setNiveau(this,'Basique')">🙂<br>Basique</div>
+        <div class="niveau-btn" onclick="setNiveau(this,'Correct')">😊<br>Correct</div>
+        <div class="niveau-btn" onclick="setNiveau(this,'Bon')">🌟<br>Bon</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">📝 Notes libres</div>
+      <textarea id="mat-notes" placeholder="Observations générales, mise en avant du rayon, merchandising…"></textarea>
+    </div>
+
+    <button class="btn btn-primary" onclick="createSession()">Créer la session →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SCREEN: COMPTEURS (journée) -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-compteurs">
+  <div class="header">
+    <div class="nav-back" onclick="goHome()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Accueil
+    </div>
+    <div class="header-label" id="cpt-pdv-label">Point de vente</div>
+    <div class="header-title" id="cpt-date-label">—</div>
+  </div>
+  <div class="content">
+
+    <!-- COMPTEURS -->
+    <div class="section-title">Observations clientes</div>
+    <div class="counter-grid">
+      <div class="counter-tile" id="tile-approchees" onclick="increment('approchees')">
+        <div class="counter-minus" onclick="event.stopPropagation();decrement('approchees')">−</div>
+        <div class="counter-icon">👀</div>
+        <div class="counter-value" id="val-approchees">0</div>
+        <div class="counter-label">Approchées<br>du rayon</div>
+      </div>
+      <div class="counter-tile" id="tile-reparties" onclick="increment('reparties')">
+        <div class="counter-minus" onclick="event.stopPropagation();decrement('reparties')">−</div>
+        <div class="counter-icon">🚶</div>
+        <div class="counter-value" id="val-reparties">0</div>
+        <div class="counter-label">Reparties<br>sans acheter</div>
+      </div>
+      <div class="counter-tile" id="tile-questions" onclick="increment('questions')">
+        <div class="counter-minus" onclick="event.stopPropagation();decrement('questions')">−</div>
+        <div class="counter-icon">❓</div>
+        <div class="counter-value" id="val-questions">0</div>
+        <div class="counter-label">Questions<br>posées</div>
+      </div>
+      <div class="counter-tile" id="tile-echanges" onclick="increment('echanges')">
+        <div class="counter-minus" onclick="event.stopPropagation();decrement('echanges')">−</div>
+        <div class="counter-icon">💬</div>
+        <div class="counter-value" id="val-echanges">0</div>
+        <div class="counter-label">Échanges<br>constructifs</div>
+      </div>
+    </div>
+
+    <!-- PROFIL CLIENTE -->
+    <div class="section-title">Profil cliente</div>
+    <div class="profil-grid">
+      <div class="profil-tile p-debutante" id="tile-debutante" onclick="incrementProfil('debutante')">
+        <div class="profil-minus" onclick="event.stopPropagation();decrementProfil('debutante')">−</div>
+        <div class="profil-icon">🌱</div>
+        <div class="profil-count" id="val-debutante">0</div>
+        <div class="profil-label">Débutante<br>K-Beauty</div>
+      </div>
+      <div class="profil-tile p-curieuse" id="tile-curieuse" onclick="incrementProfil('curieuse')">
+        <div class="profil-minus" onclick="event.stopPropagation();decrementProfil('curieuse')">−</div>
+        <div class="profil-icon">🌿</div>
+        <div class="profil-count" id="val-curieuse">0</div>
+        <div class="profil-label">Curieuse /<br>intermédiaire</div>
+      </div>
+      <div class="profil-tile p-fan" id="tile-fan" onclick="incrementProfil('fan')">
+        <div class="profil-minus" onclick="event.stopPropagation();decrementProfil('fan')">−</div>
+        <div class="profil-icon">🌸</div>
+        <div class="profil-count" id="val-fan">0</div>
+        <div class="profil-label">Déjà<br>convaincue</div>
+      </div>
+    </div>
+
+    <!-- VERBATIMS -->
+    <div class="section-title">Verbatims</div>
+    <div class="card">
+      <div class="verbatim-input-row">
+        <input type="text" id="verbatim-input" placeholder="Ce qu'une cliente a dit…" onkeydown="if(event.key==='Enter'){addVerbatim();}">
+        <button class="verbatim-add-btn" onclick="addVerbatim()">+</button>
+      </div>
+      <div class="verbatim-list" id="verbatim-list">
+        <div class="empty-state" style="padding:20px 0;">
+          <div class="empty-state-text" style="font-size:13px;">Aucun verbatim encore.<br>Tape ce que les clientes disent.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RAPPORT DU JOUR -->
+    <div class="section-title">Récap du jour</div>
+    <div class="card">
+      <div class="rapport-row">
+        <span>Clientes observées</span>
+        <span class="rapport-val" id="r-approchees">0</span>
+      </div>
+      <div class="rapport-row">
+        <span>Taux d'abandon</span>
+        <span class="rapport-val" id="r-taux">—</span>
+      </div>
+      <div class="rapport-row">
+        <span>Questions reçues</span>
+        <span class="rapport-val" id="r-questions">0</span>
+      </div>
+      <div class="rapport-row">
+        <span>Échanges qualitatifs</span>
+        <span class="rapport-val" id="r-echanges">0</span>
+      </div>
+      <div class="rapport-row">
+        <span>🌱 Débutantes</span>
+        <span class="rapport-val" id="r-debutante">0</span>
+      </div>
+      <div class="rapport-row">
+        <span>🌿 Curieuses</span>
+        <span class="rapport-val" id="r-curieuse">0</span>
+      </div>
+      <div class="rapport-row">
+        <span>🌸 Déjà fans</span>
+        <span class="rapport-val" id="r-fan">0</span>
+      </div>
+    </div>
+
+    <button class="btn btn-secondary" onclick="forceSync()" style="margin-bottom:8px;">↑ Synchroniser maintenant</button>
+    <button class="btn btn-danger" onclick="deleteSession()">Supprimer cette session</button>
+    <div style="height:20px;"></div>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-text">Vérification…</span>
+    <span style="margin-left:auto;" id="status-queue"></span>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// STATE & CONFIG
+// ═══════════════════════════════════════
+const MARQUES_DEFAUT = ['Cosrx','Anua','Skin1004','Some By Mi','Dear Klairs','Tirtir','Axis-Y','Benton','Isntree','Purito','Medicube','Beauty of Joseon'];
+let selectedMarques = [];
+let niveauVendeurs = '';
+let currentSession = null; // { id, recordId, pdv, date, approchees, reparties, questions, echanges, verbatims[] }
+let syncQueue = []; // offline queue
+let isOnline = navigator.onLine;
+let syncTimer = null;
+let sessions = [];
+
+function getConfig() {
+  return {
+    apiKey: localStorage.getItem('cfg_apikey') || '',
+    baseId: localStorage.getItem('cfg_baseid') || '',
+    table: localStorage.getItem('cfg_table') || 'Sessions'
+  };
+}
+
+function isConfigured() {
+  const c = getConfig();
+  return c.apiKey && c.baseId;
+}
+
+// ═══════════════════════════════════════
+// SCREENS
+// ═══════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+  const target = document.getElementById('screen-' + id);
+  target.style.display = 'flex';
+  target.classList.add('active');
+}
+
+function showConfig() { showScreen('config'); loadConfig(); }
+function goHome() { showScreen('home'); loadHome(); }
+
+function loadConfig() {
+  const c = getConfig();
+  document.getElementById('cfg-apikey').value = c.apiKey;
+  document.getElementById('cfg-baseid').value = c.baseId;
+  document.getElementById('cfg-table').value = c.table || 'Sessions';
+}
+
+function saveConfig() {
+  const key = document.getElementById('cfg-apikey').value.trim();
+  const base = document.getElementById('cfg-baseid').value.trim();
+  const table = document.getElementById('cfg-table').value.trim() || 'Sessions';
+  if (!key || !base) { toast('⚠️ Clé API et Base ID requis'); return; }
+  localStorage.setItem('cfg_apikey', key);
+  localStorage.setItem('cfg_baseid', base);
+  localStorage.setItem('cfg_table', table);
+  toast('✓ Configuration enregistrée');
+  setTimeout(goHome, 800);
+}
+
+// ═══════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════
+function loadHome() {
+  const now = new Date();
+  document.getElementById('home-date').textContent = now.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+  sessions = JSON.parse(localStorage.getItem('sessions') || '[]');
+  renderSessionList();
+  updateQueueStatus();
+}
+
+function renderSessionList() {
+  const el = document.getElementById('session-list');
+  if (!sessions.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🌿</div><div class="empty-state-text">Aucune session encore.<br>Commence ta première journée terrain.</div></div>`;
+    return;
+  }
+  // Sort by date desc
+  const sorted = [...sessions].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+  el.innerHTML = sorted.map(s => `
+    <div class="session-item" onclick="openSession('${s.id}')">
+      <div>
+        <div class="session-name">${s.pdv}</div>
+        <div class="session-date">${formatDate(s.date)} · ${s.approchees||0} observées · ${(s.verbatims||[]).length} verbatims</div>
+      </div>
+      <div class="session-arrow">›</div>
+    </div>
+  `).join('');
+}
+
+function updateQueueStatus() {
+  syncQueue = JSON.parse(localStorage.getItem('syncQueue') || '[]');
+  const el = document.getElementById('home-queue-status');
+  if (syncQueue.length > 0) {
+    el.innerHTML = `<div class="queue-badge">⏳ ${syncQueue.length} action(s) en attente de sync</div>`;
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+function formatDate(d) {
+  return new Date(d + 'T00:00:00').toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
+}
+
+// ═══════════════════════════════════════
+// NOUVELLE SESSION (matin)
+// ═══════════════════════════════════════
+function showNewSession() {
+  selectedMarques = [];
+  niveauVendeurs = '';
+  document.getElementById('mat-pdv').value = '';
+  document.getElementById('mat-notes').value = '';
+  document.getElementById('mat-marque-custom').value = '';
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('mat-date').value = today;
+  document.querySelectorAll('.niveau-btn').forEach(b => b.classList.remove('active'));
+  renderMarques();
+  showScreen('matin');
+}
+
+function renderMarques() {
+  const grid = document.getElementById('marques-chips');
+  grid.innerHTML = MARQUES_DEFAUT.map(m => `
+    <div class="chip ${selectedMarques.includes(m)?'active':''}" onclick="toggleMarque('${m}')">${m}</div>
+  `).join('');
+  // custom marques
+  const customs = selectedMarques.filter(m => !MARQUES_DEFAUT.includes(m));
+  customs.forEach(m => {
+    grid.innerHTML += `<div class="chip active" onclick="toggleMarque('${m}')">${m} ✕</div>`;
+  });
+}
+
+function toggleMarque(m) {
+  if (selectedMarques.includes(m)) selectedMarques = selectedMarques.filter(x=>x!==m);
+  else selectedMarques.push(m);
+  renderMarques();
+}
+
+function addCustomMarque() {
+  const v = document.getElementById('mat-marque-custom').value.trim();
+  if (v && !selectedMarques.includes(v)) {
+    selectedMarques.push(v);
+    document.getElementById('mat-marque-custom').value = '';
+    renderMarques();
+  }
+}
+
+function setNiveau(btn, val) {
+  niveauVendeurs = val;
+  document.querySelectorAll('.niveau-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function createSession() {
+  const pdv = document.getElementById('mat-pdv').value.trim();
+  const date = document.getElementById('mat-date').value;
+  const notes = document.getElementById('mat-notes').value.trim();
+  if (!pdv) { toast('⚠️ Indique le point de vente'); return; }
+  if (!date) { toast('⚠️ Date requise'); return; }
+
+  const id = Date.now().toString();
+  const session = {
+    id,
+    recordId: null,
+    pdv,
+    date,
+    marques: selectedMarques.join(', '),
+    niveauVendeurs,
+    notesMatin: notes,
+    approchees: 0,
+    reparties: 0,
+    questions: 0,
+    echanges: 0,
+    debutante: 0,
+    curieuse: 0,
+    fan: 0,
+    verbatims: [],
+    createdAt: new Date().toISOString()
+  };
+
+  // Save locally immediately
+  sessions = JSON.parse(localStorage.getItem('sessions') || '[]');
+  sessions.push(session);
+  localStorage.setItem('sessions', JSON.stringify(sessions));
+
+  // Try Airtable
+  const fields = {
+    'Nom': `${pdv} — ${formatDate(date)}`,
+    'Date': date,
+    'Point de vente': pdv,
+    'Marques présentes': session.marques,
+    'Niveau vendeurs': niveauVendeurs || '',
+    'Notes matin': notes,
+    'Nb approchées': 0,
+    'Nb reparties sans acheter': 0,
+    'Nb questions posées': 0,
+    'Nb échanges constructifs': 0,
+    'Profil Débutante': 0,
+    'Profil Curieuse': 0,
+    'Profil Fan': 0,
+    'Verbatims': ''
+  };
+
+  const recordId = await airtableCreate(fields);
+  if (recordId) {
+    session.recordId = recordId;
+    updateLocalSession(session);
+    toast('✓ Session créée et synchronisée');
+  } else {
+    // Queue for later
+    queueCreate(session.id, fields);
+    toast('📵 Session créée en local (sync en attente)');
+  }
+
+  openSession(id);
+}
+
+// ═══════════════════════════════════════
+// COMPTEURS
+// ═══════════════════════════════════════
+function openSession(id) {
+  sessions = JSON.parse(localStorage.getItem('sessions') || '[]');
+  currentSession = sessions.find(s => s.id === id);
+  if (!currentSession) { goHome(); return; }
+  renderCompteurs();
+  showScreen('compteurs');
+  startSyncLoop();
+}
+
+function renderCompteurs() {
+  document.getElementById('cpt-pdv-label').textContent = currentSession.pdv;
+  document.getElementById('cpt-date-label').textContent = formatDate(currentSession.date);
+  updateCounterDisplay();
+  renderVerbatims();
+  updateRapport();
+}
+
+function updateCounterDisplay() {
+  ['approchees','reparties','questions','echanges'].forEach(k => {
+    document.getElementById('val-'+k).textContent = currentSession[k] || 0;
+  });
+  ['debutante','curieuse','fan'].forEach(k => {
+    document.getElementById('val-'+k).textContent = currentSession[k] || 0;
+  });
+}
+
+function flashTile(key) {
+  const tile = document.getElementById('tile-'+key);
+  tile.classList.add('tapped');
+  setTimeout(() => tile.classList.remove('tapped'), 200);
+}
+
+function increment(key) {
+  currentSession[key] = (currentSession[key] || 0) + 1;
+  flashTile(key);
+  updateCounterDisplay();
+  updateRapport();
+  saveAndSync();
+}
+
+function decrement(key) {
+  if ((currentSession[key] || 0) > 0) {
+    currentSession[key]--;
+    updateCounterDisplay();
+    updateRapport();
+    saveAndSync();
+  }
+}
+
+function updateRapport() {
+  const a = currentSession.approchees || 0;
+  const r = currentSession.reparties || 0;
+  document.getElementById('r-approchees').textContent = a;
+  document.getElementById('r-taux').textContent = a > 0 ? Math.round((r/a)*100)+'%' : '—';
+  document.getElementById('r-questions').textContent = currentSession.questions || 0;
+  document.getElementById('r-echanges').textContent = currentSession.echanges || 0;
+  document.getElementById('r-debutante').textContent = currentSession.debutante || 0;
+  document.getElementById('r-curieuse').textContent = currentSession.curieuse || 0;
+  document.getElementById('r-fan').textContent = currentSession.fan || 0;
+}
+
+// ═══════════════════════════════════════
+// VERBATIMS
+// ═══════════════════════════════════════
+function addVerbatim() {
+  const input = document.getElementById('verbatim-input');
+  const v = input.value.trim();
+  if (!v) return;
+  if (!currentSession.verbatims) currentSession.verbatims = [];
+  currentSession.verbatims.push({ text: v, time: new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'}) });
+  input.value = '';
+  renderVerbatims();
+  saveAndSync();
+}
+
+function deleteVerbatim(idx) {
+  currentSession.verbatims.splice(idx, 1);
+  renderVerbatims();
+  saveAndSync();
+}
+
+function renderVerbatims() {
+  const el = document.getElementById('verbatim-list');
+  if (!currentSession.verbatims || !currentSession.verbatims.length) {
+    el.innerHTML = `<div class="empty-state" style="padding:20px 0;"><div class="empty-state-text" style="font-size:13px;">Aucun verbatim encore.</div></div>`;
+    return;
+  }
+  el.innerHTML = currentSession.verbatims.map((v,i) => `
+    <div class="verbatim-item">
+      <div class="verbatim-quote">"${v.text}"</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+        <div class="verbatim-delete" onclick="deleteVerbatim(${i})">✕</div>
+        <div style="font-size:10px;color:var(--text-dim);">${v.time||''}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════
+// SAVE & SYNC
+// ═══════════════════════════════════════
+function updateLocalSession(s) {
+  sessions = JSON.parse(localStorage.getItem('sessions') || '[]');
+  const idx = sessions.findIndex(x => x.id === s.id);
+  if (idx >= 0) sessions[idx] = s;
+  else sessions.push(s);
+  localStorage.setItem('sessions', JSON.stringify(sessions));
+}
+
+function incrementProfil(key) {
+  currentSession[key] = (currentSession[key] || 0) + 1;
+  const tile = document.getElementById('tile-'+key);
+  tile.classList.add('tapped');
+  setTimeout(() => tile.classList.remove('tapped'), 200);
+  updateCounterDisplay();
+  saveAndSync();
+}
+
+function decrementProfil(key) {
+  if ((currentSession[key] || 0) > 0) {
+    currentSession[key]--;
+    updateCounterDisplay();
+    saveAndSync();
+  }
+}
+
+function buildFields(s) {
+  return {
+    'Nb approchées': s.approchees || 0,
+    'Nb reparties sans acheter': s.reparties || 0,
+    'Nb questions posées': s.questions || 0,
+    'Nb échanges constructifs': s.echanges || 0,
+    'Profil Débutante': s.debutante || 0,
+    'Profil Curieuse': s.curieuse || 0,
+    'Profil Fan': s.fan || 0,
+    'Verbatims': (s.verbatims || []).map(v => `${v.time ? '['+v.time+'] ' : ''}"${v.text}"`).join('\n')
+  };
+}
+
+async function saveAndSync() {
+  updateLocalSession(currentSession);
+  setStatusSyncing();
+
+  if (!isOnline) {
+    queueUpdate(currentSession.id, currentSession.recordId, buildFields(currentSession));
+    setStatusOffline();
+    return;
+  }
+
+  if (currentSession.recordId) {
+    const ok = await airtableUpdate(currentSession.recordId, buildFields(currentSession));
+    if (ok) {
+      setStatusOnline();
+    } else {
+      queueUpdate(currentSession.id, currentSession.recordId, buildFields(currentSession));
+      setStatusOffline();
+    }
+  } else {
+    // No record yet — check queue
+    queueUpdate(currentSession.id, null, buildFields(currentSession));
+    setStatusOffline();
+  }
+  updateStatusQueue();
+}
+
+async function forceSync() {
+  toast('↑ Synchronisation…');
+  await flushQueue();
+  if (currentSession) await saveAndSync();
+}
+
+// ═══════════════════════════════════════
+// OFFLINE QUEUE
+// ═══════════════════════════════════════
+function queueCreate(sessionId, fields) {
+  syncQueue = JSON.parse(localStorage.getItem('syncQueue') || '[]');
+  // Remove any existing create for this session
+  syncQueue = syncQueue.filter(q => !(q.sessionId === sessionId && q.type === 'create'));
+  syncQueue.push({ type: 'create', sessionId, fields, ts: Date.now() });
+  localStorage.setItem('syncQueue', JSON.stringify(syncQueue));
+}
+
+function queueUpdate(sessionId, recordId, fields) {
+  syncQueue = JSON.parse(localStorage.getItem('syncQueue') || '[]');
+  // Merge with existing update for same session (deduplicate)
+  const existing = syncQueue.findIndex(q => q.sessionId === sessionId && q.type === 'update');
+  if (existing >= 0) {
+    syncQueue[existing].fields = { ...syncQueue[existing].fields, ...fields };
+    syncQueue[existing].recordId = recordId || syncQueue[existing].recordId;
+  } else {
+    syncQueue.push({ type: 'update', sessionId, recordId, fields, ts: Date.now() });
+  }
+  localStorage.setItem('syncQueue', JSON.stringify(syncQueue));
+}
+
+async function flushQueue() {
+  syncQueue = JSON.parse(localStorage.getItem('syncQueue') || '[]');
+  if (!syncQueue.length) return;
+  const remaining = [];
+  for (const item of syncQueue) {
+    let success = false;
+    if (item.type === 'create') {
+      const recordId = await airtableCreate(item.fields);
+      if (recordId) {
+        // Update local session with recordId
+        sessions = JSON.parse(localStorage.getItem('sessions') || '[]');
+        const s = sessions.find(x => x.id === item.sessionId);
+        if (s) { s.recordId = recordId; localStorage.setItem('sessions', JSON.stringify(sessions)); }
+        if (currentSession && currentSession.id === item.sessionId) currentSession.recordId = recordId;
+        success = true;
+      }
+    } else if (item.type === 'update') {
+      if (item.recordId) {
+        success = await airtableUpdate(item.recordId, item.fields);
+      } else {
+        // Try to get recordId from local
+        sessions = JSON.parse(localStorage.getItem('sessions') || '[]');
+        const s = sessions.find(x => x.id === item.sessionId);
+        if (s && s.recordId) {
+          success = await airtableUpdate(s.recordId, item.fields);
+        }
+      }
+    }
+    if (!success) remaining.push(item);
+  }
+  localStorage.setItem('syncQueue', JSON.stringify(remaining));
+  syncQueue = remaining;
+  updateStatusQueue();
+  if (remaining.length === 0) { toast('✓ Tout est synchronisé'); setStatusOnline(); }
+  else toast(`⚠️ ${remaining.length} action(s) encore en attente`);
+}
+
+// ═══════════════════════════════════════
+// AIRTABLE API
+// ═══════════════════════════════════════
+async function airtableCreate(fields) {
+  const c = getConfig();
+  try {
+    const res = await fetch(`https://api.airtable.com/v0/${c.baseId}/${encodeURIComponent(c.table)}`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + c.apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields })
+    });
+    if (!res.ok) { console.error('Airtable create error', await res.text()); return null; }
+    const data = await res.json();
+    return data.id || null;
+  } catch(e) { console.error(e); return null; }
+}
+
+async function airtableUpdate(recordId, fields) {
+  const c = getConfig();
+  try {
+    const res = await fetch(`https://api.airtable.com/v0/${c.baseId}/${encodeURIComponent(c.table)}/${recordId}`, {
+      method: 'PATCH',
+      headers: { 'Authorization': 'Bearer ' + c.apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields })
+    });
+    return res.ok;
+  } catch(e) { return false; }
+}
+
+// ═══════════════════════════════════════
+// STATUS
+// ═══════════════════════════════════════
+function setStatusOnline() {
+  document.getElementById('status-dot').className = 'status-dot online';
+  document.getElementById('status-text').textContent = 'Synchronisé';
+}
+function setStatusOffline() {
+  document.getElementById('status-dot').className = 'status-dot offline';
+  document.getElementById('status-text').textContent = 'Hors ligne — file d\'attente active';
+}
+function setStatusSyncing() {
+  document.getElementById('status-dot').className = 'status-dot syncing';
+  document.getElementById('status-text').textContent = 'Synchronisation…';
+}
+function updateStatusQueue() {
+  syncQueue = JSON.parse(localStorage.getItem('syncQueue') || '[]');
+  const el = document.getElementById('status-queue');
+  el.textContent = syncQueue.length > 0 ? `⏳ ${syncQueue.length} en attente` : '';
+}
+
+function startSyncLoop() {
+  if (syncTimer) clearInterval(syncTimer);
+  updateOnlineStatus();
+  syncTimer = setInterval(async () => {
+    const wasOffline = !isOnline;
+    isOnline = navigator.onLine;
+    if (wasOffline && isOnline) {
+      // Just came back online
+      toast('📶 Connexion rétablie — synchronisation…');
+      await flushQueue();
+    }
+    if (isOnline) setStatusOnline(); else setStatusOffline();
+    updateStatusQueue();
+  }, 15000);
+}
+
+function updateOnlineStatus() {
+  isOnline = navigator.onLine;
+  if (isOnline) setStatusOnline(); else setStatusOffline();
+  updateStatusQueue();
+}
+
+// ═══════════════════════════════════════
+// DELETE SESSION
+// ═══════════════════════════════════════
+function deleteSession() {
+  if (!confirm('Supprimer cette session ? Les données locales seront effacées.')) return;
+  sessions = sessions.filter(s => s.id !== currentSession.id);
+  localStorage.setItem('sessions', JSON.stringify(sessions));
+  currentSession = null;
+  if (syncTimer) clearInterval(syncTimer);
+  goHome();
+  toast('Session supprimée');
+}
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════
+// ONLINE/OFFLINE EVENTS
+// ═══════════════════════════════════════
+window.addEventListener('online', async () => {
+  isOnline = true;
+  toast('📶 Connexion rétablie');
+  await flushQueue();
+  setStatusOnline();
+});
+window.addEventListener('offline', () => {
+  isOnline = false;
+  setStatusOffline();
+  toast('📵 Hors ligne — file d\'attente active');
+});
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+window.onload = () => {
+  if (!isConfigured()) {
+    showScreen('config');
+  } else {
+    goHome();
+  }
+};
+</script>
+</body>
+</html>
